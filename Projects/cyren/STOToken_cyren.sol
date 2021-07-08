@@ -84,7 +84,7 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       uint256 tokenUnitValue = uint256(10**18);
       require(amount.mod(_shareValue) == 0 , "Amount must be a value that represents an integer shares number" );
       require(balanceOf(to).add(amount) >= tokenUnitValue, "The receiver must own more than 1 token");
-      if (from != address(0) || balanceOf(from).sub(amount) != 0) {
+      if (from != address(0) && balanceOf(from).sub(amount) != 0) {
         require(balanceOf(from).sub(amount) >= tokenUnitValue, "The source must own more than 1 token");
       }
 
