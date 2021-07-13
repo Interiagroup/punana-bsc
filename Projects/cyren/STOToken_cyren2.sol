@@ -103,7 +103,7 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       if(onlyIntegerTranfersMode){
         require(amount.mod(tokenUnitValue) == 0 , "Amount must be an integer");
       } else if (from != address(0)) {
-        require(balanceOf(from).mod(tokenUnitValue) != 0, "You are not allow to transfer non-integer values")
+        require(balanceOf(from).mod(tokenUnitValue) != 0, "You are not allow to transfer non-integer values");
       } 
       
       if(from != address(0)){
