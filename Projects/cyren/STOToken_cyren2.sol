@@ -14,8 +14,7 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     
     bool public freeMintingMode = false;
-    bool public onlyIntegerTranfersMode = true;
-    bool public onlyMintingMode = true;
+    bool public noTransfersMode = true;
     uint8 private _minTokenMint;
     
     event SwapTokens(address indexed from, address indexed to, uint256 tokens);
@@ -74,16 +73,18 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       _mint(to, amount);
     }
     
+    function burn(address account, uint256 amount) public onlyOwner {
+       uint256 tokenUnitValue = uint256(10**18);
+       require(balanceOf(account).mod(tokenUnitValue) != 0, "You are not allowed to burn non-integer values");
+       _burn(account, amount);
+    }
+    
     function setFreeMintingMode(bool mode) public onlyOwner {
       freeMintingMode = mode;
     }
     
-    function setOnlyIntegerTranfersMode(bool mode) public onlyOwner {
-      onlyIntegerTranfersMode = mode;
-    }
-    
-    function setOnlyMintingMode(bool mode) public onlyOwner {
-      onlyMintingMode = mode;
+    function setNoTransfersMode(bool mode) public onlyOwner {
+      noTransfersMode = mode;
     }
 
     function pause() public {
@@ -100,14 +101,12 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       super._beforeTokenTransfer(from, to, amount);
       uint256 tokenUnitValue = uint256(10**18);
       
-      if(onlyIntegerTranfersMode){
+      if(from != address(0) && to != address(0)){
         require(amount.mod(tokenUnitValue) == 0 , "Amount must be an integer");
-      } else if (from != address(0)) {
-        require(balanceOf(from).mod(tokenUnitValue) != 0, "You are not allowed to transfer non-integer values");
       } 
       
       if(from != address(0)){
-        require(onlyMintingMode == false , "Transfers are not allowed yet");
+        require(noTransfersMode == false , "Transfers are not allowed yet");
       }
     }
 
