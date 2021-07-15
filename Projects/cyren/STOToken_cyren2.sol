@@ -64,7 +64,7 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
     function mint(address to, uint256 amount) public {
       require(hasRole(MINTER_ROLE, _msgSender()), "STOToken: must have minter role to mint");
       
-      if(totalSupply() + amount == cap()){
+      if(totalSupply().add(amount) == cap()){
         firstSaleMode = false;
       }
     
