@@ -14,8 +14,8 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     
     bool public freeMintingMode = false;
-    bool public noTransfersMode = true;
-    uint8 private _minTokenMint;
+    bool public firstSaleMode = true;
+    uint256 private _minTokenMint;
     
     event SwapTokens(address indexed from, address indexed to, uint256 tokens);
 
@@ -60,12 +60,15 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
 
       emit SwapTokens(_from, _to, fromBalance);
     }
-
+    
     function mint(address to, uint256 amount) public {
       require(hasRole(MINTER_ROLE, _msgSender()), "STOToken: must have minter role to mint");
- 
-      if(!freeMintingMode){
       
+      if(totalSupply() + amount == cap()){
+        firstSaleMode = false;
+      }
+    
+      if(!freeMintingMode){
           require(amount >= _minTokenMint , "Amount is less than minimum allowed value" );
       }
       
@@ -80,10 +83,6 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
     
     function setFreeMintingMode(bool mode) public onlyOwner {
       freeMintingMode = mode;
-    }
-    
-    function setNoTransfersMode(bool mode) public onlyOwner {
-      noTransfersMode = mode;
     }
 
     function pause() public {
@@ -101,12 +100,13 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       uint256 tokenUnitValue = uint256(10**18);
       
       if(from != address(0) && to != address(0)){
+        if(firstSaleMode){
+            require(amount == balanceOf(from), "You can only transfer all the tokens in first sale");
+        }
+        
         require(amount.mod(tokenUnitValue) == 0 , "Amount must be an integer");
       } 
       
-      if(from != address(0)){
-        require(noTransfersMode == false , "Transfers are not allowed yet");
-      }
     }
 
     uint256[50] private __gap;
