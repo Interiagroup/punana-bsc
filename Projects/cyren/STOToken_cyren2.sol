@@ -19,11 +19,11 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
     
     event SwapTokens(address indexed from, address indexed to, uint256 tokens);
 
-    function initialize(string memory name, string memory symbol, uint256 supply, uint8 minTokenMint) public {
-      __STOToken_init(name, symbol, supply, minTokenMint);
+    function initialize(string memory name, string memory symbol, uint256 supply) public {
+      __STOToken_init(name, symbol, supply);
     }
 
-    function __STOToken_init(string memory name, string memory symbol, uint256 supply, uint8 minTokenMint) internal initializer {
+    function __STOToken_init(string memory name, string memory symbol, uint256 supply) internal initializer {
       __Context_init_unchained();
       __AccessControl_init_unchained();
       __ERC20_init_unchained(name, symbol);
@@ -31,14 +31,14 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       __ERC20Capped_init(supply);
       __Pausable_init_unchained();
       __ERC20Pausable_init_unchained();
-      __STOToken_init_unchained(minTokenMint);
+      __STOToken_init_unchained(supply);
     }
 
-    function __STOToken_init_unchained(uint8 minTokenMint) internal initializer {
+    function __STOToken_init_unchained(uint256 supply) internal initializer {
       _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
       _setupRole(MINTER_ROLE, _msgSender());
       _setupRole(PAUSER_ROLE, _msgSender());
-      _minTokenMint = minTokenMint;
+      _minTokenMint = supply.div(100);
     }
 
 
@@ -65,9 +65,8 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       require(hasRole(MINTER_ROLE, _msgSender()), "STOToken: must have minter role to mint");
  
       if(!freeMintingMode){
-          uint256 safeDecimals = uint256(10**18);
-          
-          require(amount >= safeDecimals.mul(_minTokenMint) , "Amount is less than minimum allowed value" );
+      
+          require(amount >= _minTokenMint , "Amount is less than minimum allowed value" );
       }
       
       _mint(to, amount);
