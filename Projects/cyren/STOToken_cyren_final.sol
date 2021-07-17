@@ -97,7 +97,6 @@ contract STOToken is ContextUpgradeable, AccessControlUpgradeable, ERC20Whitelis
       if(from != address(0) && to != address(0)){
         require(amount.mod(tokenUnitValue) == 0 , "Amount must be an integer");
       } 
-      
     }
 
     uint256[50] private __gap;
